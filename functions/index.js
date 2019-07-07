@@ -62,6 +62,9 @@ if(req.headers.authorization && req.headers.authorization.startsWith('Bearer '))
         }).then( data => {
             req.user.handler = data.docs[0].data().handler
             return next();
+    }).catch( err => {
+        console.log(err.code);
+        return res.status(400).json({error: err.code})
     })
 };
 app.post('/create', FBAuth,(req, res) => {
