@@ -19,11 +19,10 @@ exports.createAPost = (req, res) => {
     const date = new Date();
     const formatted = `${date.getDate()}:${date.getMonth() + 1}:${date.getFullYear()}`;
     const Post = {
-        user: req.user.handler,
+        user: req.body.handler,
         body: req.body.body,
         created: formatted
     };
-
     db.collection('posts').add(Post)
         .then( doc => {
             res.json(` User created with id of ${doc.id}`);})
