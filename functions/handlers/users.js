@@ -14,7 +14,7 @@ exports.signUp = (req, res) => {
 
      const {errors, valid} = validateData(newUser);
 
-     const img = 'noimgage.png';
+     const img = 'noimage.png';
 
      if(!valid) return res.json(errors);
     //TODO Add errors for password
@@ -36,6 +36,7 @@ exports.signUp = (req, res) => {
             email: newUser.email,
             created: new Date().toISOString(),
             userImg: `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${img}?alt=media`,
+            
             userId: userId
         };
         return db.doc(`/users/${newUser.handler}`).set(addUser)
