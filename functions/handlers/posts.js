@@ -39,25 +39,25 @@ exports.createAPost = (req, res) => {
 
 exports.getPost = (req,res) => {
 
-    let scream = {};
+    let postData = {};
 
     db.doc(`/posts/${req.params.postId}`).get()
         .then(doc => {
             if(!doc.exists){
                 return res.status(400).json({error: 'post doesnt exist'})
             }
-            scream = doc.data();
-            scream.screamId = doc.id;
-            return db.collection('comments').orderBy('created','desc').where('postId', '==', req.params.postId).get();
-        })
-        .then(data => {
-            scream.comments = [];
-            data.forEach( doc => {
-                scream.comments.push(doc.data())
-            })
-            return res.json(scream)
-        })
-        .catch(err => res.status(400).json({error: err.code}))
+            //returns information from db.doc inside doc.data()
+            postData = doc.data();
+            postData.postId = doc.id;
+            return db.collection('comments')
+                .where('postId', '==', req.params.postId).get()
+        }).then( data => {
+        postData.comments = [];
+        data.forEach( doc => {
+            postData.comments.push(doc.data())
+        });
+        return res.json(postData)
+    }).catch(err => res.status(400).json({error: err.code}))
 };
 
 exports.commentOnPost = (req,res) => {

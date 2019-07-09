@@ -11,10 +11,8 @@ app.get('/posts', getAllPosts);
 app.get('/posts/:postId', getPost);
 app.post('/post/:postId/comment', FBAuth, commentOnPost);
 //TODO deleste post
-//TODO like post
-app.get('/post/:postId/like', FBAuth, likePost)
-app.get('/post/:postId/unlike', FBAuth, unlikePost)
-//TODO unlike post
+app.get('/post/:postId/like', FBAuth, likePost);
+app.get('/post/:postId/unlike', FBAuth, unlikePost);
 
 app.post('/signUp', signUp);
 app.post('/login', login);
