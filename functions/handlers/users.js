@@ -120,3 +120,23 @@ exports.addUserDetails = (req,res) => {
         res.status(500).json({error: err.code}));
 
 };
+
+exports.getAuthenticatedUser = (req,res) => {
+  let resData = {};
+
+  db.doc(`/users/${req.user.handler}`).get()
+      .then(doc => {
+          if(doc.exists){
+              resData.credentials = doc.data();
+              return db.collection('likes').where('handler', '==', req.user.handler ).get();
+          }
+      })
+      .then(data => {
+          resData.likes = [];
+          data.forEach(doc => {
+              resData.likes.push(doc.data());
+          });
+          return res.json(resData)
+      })
+      .catch( err => res.status(400).json({error: err}));
+};
