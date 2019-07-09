@@ -17,7 +17,7 @@ module.exports = (req,res,next) => {
                 .get()
         }).then( data => {
         req.user.handler = data.docs[0].data().handler;
-        req.user.userImg = data.doc[0].data().userImg;
+        req.user.userImg = data.docs[0].data().userImg;
         return next();
     }).catch( err => {
         console.log(`djfjfjfjf ${err.message}`);
