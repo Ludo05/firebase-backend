@@ -1,6 +1,6 @@
 const functions = require('firebase-functions');
 const { getAllPosts, createAPost, getPost, commentOnPost, unlikePost, likePost, deletePost} = require('./handlers/posts');
-const { signUp, login, uploadImage, addUserDetails, getAuthenticatedUser} = require('./handlers/users');
+const { signUp, login, uploadImage, addUserDetails, getAuthenticatedUser, markNotificationRead, getUserDetails} = require('./handlers/users');
 const express = require('express');
 const  FBAuth  = require('./util/FBAuth');
 const cors = require('cors');
@@ -22,7 +22,9 @@ app.post('/signup', signUp);
 app.post('/login', login);
 app.post('/user/image', FBAuth, uploadImage );
 app.post('/user/details', FBAuth, addUserDetails);
-app.get('/user ', FBAuth, getAuthenticatedUser);
+app.get('/user', FBAuth, getAuthenticatedUser);
+app.get('/user/:handler', getUserDetails);
+app.get('/notification', FBAuth, markNotificationRead);
 
 exports.api = functions.https.onRequest(app);
 

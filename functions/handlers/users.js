@@ -155,3 +155,53 @@ exports.getAuthenticatedUser = (req,res) => {
       })
       .catch( err => res.status(400).json({error: err}));
 };
+
+exports.markNotificationRead = (req, res) => {
+ let batch = db.batch();
+ req.body.forEach( notificationId => {
+     const notification = db.doc(`notifications/${notificationId}`);
+     batch.update(notification, {read: true})
+ });
+     batch
+     .commit()
+     .then( () => {
+         return res.json({message: 'Notification marked read'})
+     })
+     .catch( err => {
+         return res.status(500).json({error: err})
+     })
+};
+
+exports.getUserDetails = (req,res) => {
+    const user = {};
+ db.doc(`/users/${req.params.handler}`).get()
+     .then( doc => {
+         if(!doc.exists){
+             return res.status(400).json({error: 'user doesn\'t exist'});
+         }
+
+         user.data = doc.data();
+         return db.collection('posts').where('user', '==', req.params.handler).get()
+
+
+     }).then( data => {
+        user.posts = [];
+        data.forEach( doc => {
+            console.log(doc.data());
+            user.posts.push({
+                body: doc.data().body,
+                user: doc.data().user,
+                created: doc.data().created,
+                likeCount: doc.data().likeCount,
+                userImg: doc.data().userImg,
+                commentCount: doc.data().commentCount,
+                postId: doc.id,
+            })
+        })
+    }).then( () => {
+          return res.status(200).json(user)
+    }).catch( err => {
+     console.log(err);
+     return res.status(400).json({ error: err})
+ })
+};
