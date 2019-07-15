@@ -81,7 +81,7 @@ exports.commentOnPost = (req,res) => {
         .then(() => {
             return res.json(newComment)
         })
-        .catch( err => res.status(500).json({error: err.code}))
+        .catch( err => res.status(500).json({errors: err.code}))
 };
 
 
@@ -141,7 +141,7 @@ exports.unlikePost = (req,res) => {
         } else {
             return db.collection(`likes/${data.docs[0].id}`).delete()
                 .then(() => {
-                    postData.likeCount--
+                    postData.likeCount--;
                     return postDocmuent.update({likeCount: postData.likeCount})
                         .then(() => {
                             res.json(postData)
@@ -149,5 +149,24 @@ exports.unlikePost = (req,res) => {
                 })
         }
     }).catch(err  => res.status(400).json({error: err.code}))
+
+};
+
+exports.deletePost = (req, res) => {
+   const document = db.doc(`/post/${req.params.postId}`);
+   document.get()
+       .then( doc => {
+           if(!doc.exists){
+               return res.status(400).json({error: 'Post does not exist.'})
+           }
+           if(doc.data().handler !== req.user.handler) {
+               return res.status(403).json({error: 'Unauthorzied'})
+           } else {
+                return document.delete();
+           }
+       }).then( () => {
+           res.status(200).json({success: `document ${document.created} deleted`})
+   })
+       .catch( err => res.status(400).json({error: err}))
 
 };

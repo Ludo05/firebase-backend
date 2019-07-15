@@ -16,6 +16,7 @@ module.exports = (req,res,next) => {
                 .limit(1)
                 .get()
         }).then( data => {
+               console.log(`ISSS THIS WHAT YOU WANNNTTTT${data}`);
         req.user.handler = data.docs[0].data().handler;
         req.user.userImg = data.docs[0].data().userImg;
         return next();

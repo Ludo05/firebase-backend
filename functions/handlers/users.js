@@ -16,7 +16,7 @@ exports.signUp = (req, res) => {
 
      const img = 'noimage.png';
 
-     if(!valid) return res.json(errors);
+     if(!valid) return res.status(400).json(errors);
     //TODO Add errors for password
     let tokenCredential, userId;
     db.doc(`/users/${newUser.handler}`).get()
