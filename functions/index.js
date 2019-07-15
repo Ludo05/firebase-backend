@@ -4,6 +4,7 @@ const { signUp, login, uploadImage, addUserDetails, getAuthenticatedUser} = requ
 const express = require('express');
 const  FBAuth  = require('./util/FBAuth');
 const cors = require('cors');
+const { db } = require('./util/admin');
 
 
 const app = express();
@@ -24,3 +25,63 @@ app.post('/user/details', FBAuth, addUserDetails);
 app.get('/user ', FBAuth, getAuthenticatedUser);
 
 exports.api = functions.https.onRequest(app);
+
+exports.createNotificationOnLike = functions.firestore.document('likes/{id}')
+.onCreate(snapshot => {
+    db.doc(`/posts/${snapshot.data().postId}`).get()
+        .then(doc => {
+            if (doc.exists) {
+                return db.doc(`/notifications/${snapshot.id}`).set({
+                    createdAt: new Date().toISOString(),
+                    recipient: doc.data().handler,
+                    sender: snapshot.data().handler,
+                    type: 'like',
+                    read: false,
+                    postId: doc.id
+                });
+            }
+        })
+        .then(() => {
+            return;
+        }).catch(err => {
+        console.log(err);
+        return;
+    })
+});
+
+
+exports.createNotificationOnComment = functions.firestore.document('comments/{id}')
+.onCreate( snapshot => {
+    db.doc(`/posts/${snapshot.data().postId}`).get()
+        .then(doc => {
+            if (doc.exists) {
+                return db.doc(`/notifications/${snapshot.id}`).set({
+                    createdAt: new Date().toISOString(),
+                    recipient: doc.data().handler,
+                    sender: snapshot.data().handler,
+                    type: 'comment',
+                    read: false,
+                    postId: doc.id
+                });
+            }
+        })
+        .then(() => {
+            return;
+        }).catch(err => {
+        console.log(err);
+        return;
+    })
+});
+
+exports.deleteNotificationOnUnlike = functions.firestore.document('likes/{id}')
+    .onDelete( snapshot => {
+        db.doc(`/notifications/${snapshot.id}`)
+            .delete()
+            .then( () => {
+                return;
+            })
+            .catch( err => {
+                console.log(err);
+                return;
+            })
+    });
