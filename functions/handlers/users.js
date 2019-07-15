@@ -135,7 +135,22 @@ exports.getAuthenticatedUser = (req,res) => {
           resData.likes = [];
           data.forEach(doc => {
               resData.likes.push(doc.data());
-          });
+          })
+          return db.collection('notifications ').where('recipient', '==', req.user.handler).limit(10).get()
+      })
+      .then(data => {
+          resData.notifications = [];
+              data.forEach( doc => {
+                  resData.notifications.push({
+                        recipient: doc.data().recipient,
+                        sender: doc.data().sender,
+                        read: doc.data().read,
+                        postId: doc.data().postId,
+                        type: doc.data().type,
+                        created: doc.data().created,
+                         notfication : doc.id,
+                  })
+              });
           return res.json(resData)
       })
       .catch( err => res.status(400).json({error: err}));
