@@ -10,7 +10,7 @@ module.exports = (req,res,next) => {
     admin.auth().verifyIdToken(idToken)
         .then(decode => {
             req.user = decode;
-            console.log(`ISSS THIS WHAT YOU WANNNTTTT${decode }`);
+            console.log(`ISSS THIS WHAT YOU WANNNTTTT${JSON.stringify(decode)}`);
             return db.collection('users')
                 .where('userId', '==', req.user.uid)
                 .limit(1)
