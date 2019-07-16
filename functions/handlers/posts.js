@@ -89,7 +89,7 @@ exports.commentOnPost = (req,res) => {
 
 
 exports.likePost = (req,res) => {
-    const likeDocument = db.collection('likes').where('user', '==', req.user.handler)
+    const likeDocument = db.collection('likes').where('handler', '==', req.user.handler)
         .where('postId', '==', req.params.postId).limit(1);
 
     const postDocmuent = db.doc(`/posts/${req.params.postId}`);
@@ -110,7 +110,6 @@ exports.likePost = (req,res) => {
                 postId: req.params.postId,
                 handler: req.user.handler
             }).then( () => {
-                console.log(3333333);
                 postData.likeCount++;
                     return postDocmuent.update({likeCount: postData.likeCount})
             })
@@ -123,7 +122,7 @@ exports.likePost = (req,res) => {
 
 
 exports.unlikePost = (req,res) => {
-    const likeDocument = db.collection('likes').where('user', '==', req.user.handler)
+    const unlikeDocument = db.collection('likes').where('handler', '==', req.user.handler)
         .where('postId', '==', req.params.postId).limit(1);
 
     const postDocmuent = db.doc(`/posts/${req.params.postId}`);
@@ -134,7 +133,7 @@ exports.unlikePost = (req,res) => {
         if(data.exists){
             postData = data.data();
             postData.postId = data.id;
-            return likeDocument.get();
+            return unlikeDocument.get();
         } else {
             return  res.status(404).json({ error: 'Went wrong'})
         }
@@ -142,13 +141,15 @@ exports.unlikePost = (req,res) => {
         if(data.empty){
             return  res.status(400).json({error: 'post not liked'})
         } else {
-            return db.collection(`likes/${data.docs[0].id}`).delete()
+            return db.doc(`/likes/${data.docs[0].id}`)
+                .delete()
                 .then(() => {
+                    console.log(28383)
                     postData.likeCount--;
                     return postDocmuent.update({likeCount: postData.likeCount})
-                        .then(() => {
-                            res.json(postData)
-                        })
+                })
+                .then(() => {
+                    res.json(postData)
                 })
         }
     }).catch(err  => res.status(400).json({error: err.code}))
