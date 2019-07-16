@@ -30,7 +30,7 @@ exports.api = functions.https.onRequest(app);
 
 exports.createNotificationOnLike = functions.firestore.document('likes/{id}')
 .onCreate(snapshot => {
-    db.doc(`/posts/${snapshot.data().postId}`).get()
+   return  db.doc(`/posts/${snapshot.data().postId}`).get()
         .then(doc => {
             if (doc.exists) {
                 return db.doc(`/notifications/${snapshot.id}`).set({
@@ -43,18 +43,13 @@ exports.createNotificationOnLike = functions.firestore.document('likes/{id}')
                 });
             }
         })
-        .then(() => {
-            return;
-        }).catch(err => {
-        console.log(err);
-        return;
-    })
+      .catch(err => console.log(err))
 });
 
 
 exports.createNotificationOnComment = functions.firestore.document('comments/{id}')
 .onCreate( snapshot => {
-    db.doc(`/posts/${snapshot.data().postId}`).get()
+   return  db.doc(`/posts/${snapshot.data().postId}`).get()
         .then(doc => {
             if (doc.exists) {
                 return db.doc(`/notifications/${snapshot.id}`).set({
@@ -67,23 +62,54 @@ exports.createNotificationOnComment = functions.firestore.document('comments/{id
                 });
             }
         })
-        .then(() => {
-            return;
-        }).catch(err => {
-        console.log(err);
-        return;
-    })
+       .catch(err => console.log(err))
 });
 
 exports.deleteNotificationOnUnlike = functions.firestore.document('likes/{id}')
     .onDelete( snapshot => {
-        db.doc(`/notifications/${snapshot.id}`)
+     return  db.doc(`/notifications/${snapshot.id}`)
             .delete()
-            .then( () => {
-                return;
-            })
-            .catch( err => {
-                console.log(err);
-                return;
-            })
+            .catch( err =>  console.log(err))
     });
+
+exports.onUserImageChange = functions.firestore.document('users/{userId}')
+.onUpdate( change => {
+    if(change.before.data().userImg !== change.after.data().userImg) {
+        let batch = db.batch();
+        return db.collection('posts').where('user', '==', change.before.data().user).get()
+            .then(data => {
+                data.forEach(doc => {
+                    const post = db.doc(`/posts/${doc.id}`);
+                    batch.update(post, {userImg: change.after.data().userImg});
+                });
+                return batch.commit()
+            })
+    }
+});
+
+
+exports.onPostDelete = functions.firestore.document('post/{postId}')
+.onDelete((snapshot, context) =>  {
+    const postId = context.params.postId;
+    const batch = db.batch();
+    return db.collection('comments').where( 'postId' ,'==', postId).get()
+        .then( data => {
+            data.forEach( doc => {
+                batch.delete(db.doc(`/comments/${doc.id}`))
+            });
+            return db.collection('likes').where('postId', '==', postId).get()
+        })
+        .then( data => {
+            data.forEach( doc => {
+                batch.delete(db.doc(`/likes/${doc.id}`))
+            });
+            return db.collection('notifications').where('postId', '==', postId).get()
+        })
+        .then( data => {
+            data.forEach( doc => {
+                batch.delete(db.doc(`/notifcations/${doc.id}`))
+            });
+            return batch.commit()
+        })
+        .catch( err => console.log(err))
+});

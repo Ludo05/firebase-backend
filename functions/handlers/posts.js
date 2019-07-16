@@ -8,7 +8,10 @@ exports.getAllPosts = (req, res) => {
                     screamId: doc.id,
                     user: doc.data().user,
                     body: doc.data().body,
-                    created: doc.data().created
+                    created: doc.data().created,
+                    likeCount: doc.data().likeCount,
+                    commentCount: doc.data().commentCount,
+                    userImg: doc.data().userImg
                 });
             });
             return res.json(posts);
@@ -61,7 +64,7 @@ exports.getPost = (req,res) => {
 };
 
 exports.commentOnPost = (req,res) => {
-    if(req.body.body.trim() === '') return res.status(400).json({error: 'Must not be empty'});
+    if(req.body.body.trim() === '') return res.status(400).json({comment: 'Must not be empty'});
 
     const newComment = {
         body: req.body.body,
@@ -86,7 +89,7 @@ exports.commentOnPost = (req,res) => {
 
 
 exports.likePost = (req,res) => {
-    const likeDocument = db.collection('likes').where('handler', '==', req.user.handler)
+    const likeDocument = db.collection('likes').where('user', '==', req.user.handler)
         .where('postId', '==', req.params.postId).limit(1);
 
     const postDocmuent = db.doc(`/posts/${req.params.postId}`);

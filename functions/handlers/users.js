@@ -42,12 +42,9 @@ exports.signUp = (req, res) => {
     }).then(() => {
         return res.status(201).json({token: tokenCredential});
     }).catch(err => {
-        if(err.code === 'auth/email-already-in-use'){
-            return res.status(400).json({Error: 'email already in use'});
-        } else {
             console.log(`${err}`);
-            return res.status(400).json({error: err.code})
-        }
+            return res.status(500).json({ general: 'Something went wrong, please try again'})
+
     });
 };
 
@@ -101,8 +98,8 @@ exports.uploadImage = (req,res) => {
                     }
                 }
             }).then(() => {
-                const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
-                return db.doc(`/users/${req.user.handler}`).update({userImg :imageUrl})
+                const userImg = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
+                return db.doc(`/users/${req.user.handler}`).update({userImg: userImg})
             }).then(() => res.json({message: 'Image uploaded.'}))
                 .catch(err => res.status(500).json({error: err.code}))
         });
