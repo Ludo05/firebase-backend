@@ -78,8 +78,9 @@ exports.uploadImage = (req,res) => {
 
     const busboy = new BusBoy({headers: req.headers});
     busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
-        //
-        // if (mimetype !== 'image/png' || mimetype !== 'image/jpg') {
+
+        // console.log(mimetype);
+        // if (mimetype !== "image/png" || mimetype !== "image/jpg") {
         //     return res.status(400).json({error: 'Please upload a image'});
         // }
 
@@ -88,9 +89,7 @@ exports.uploadImage = (req,res) => {
         imageFileName = `${Math.round(Math.random() * 1000000) + 4}.${imgExtension}`;
         const filePath = path.join(os.tmpdir(), imageFileName);
         imgToBeUploaded = {filePath, mimetype};
-        console.log(imgToBeUploaded.filePath};
         file.pipe(fs.createWriteStream(filePath));
-
     });
 
         busboy.on('finish', () => {
@@ -102,9 +101,7 @@ exports.uploadImage = (req,res) => {
                     }
                 }
             }).then(() => {
-            console.log('WE UP IN THEEEE')
                 const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
-            console.log(imageUrl);    
                 return db.doc(`/users/${req.user.handler}`).update({userImg :imageUrl})
             }).then(() => res.json({message: 'Image uploaded.'}))
                 .catch(err => res.status(500).json({error: err.code}))

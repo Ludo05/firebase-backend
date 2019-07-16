@@ -10,13 +10,13 @@ module.exports = (req,res,next) => {
     admin.auth().verifyIdToken(idToken)
         .then(decode => {
             req.user = decode;
-            console.log(`ISSS THIS WHAT YOU WANNNTTTT${JSON.stringify(decode)}`);
+            // console.log(`ISSS THIS WHAT YOU WANNNTTTT${JSON.stringify(decode)}`);
             return db.collection('users')
                 .where('userId', '==', req.user.uid)
                 .limit(1)
                 .get()
         }).then( data => {
-               console.log(`ISSS THIS WHAT YOU WANNNTTTT${JSON.stringify(data)}`);
+               // console.log(`ISSS THIS WHAT YOU WANNNTTTT${JSON.stringify(data)}`);
         req.user.handler = data.docs[0].data().handler;
         req.user.userImg = data.docs[0].data().userImg;
         return next();
