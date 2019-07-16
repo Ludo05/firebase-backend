@@ -97,10 +97,10 @@ exports.likePost = (req,res) => {
     let postData = {};
 
     postDocmuent.get().then(data => {
-        if(data.exists){
+        if(  data.exists){
            postData = data.data();
            postData.postId = data.id;
-           return likeDocument.get();
+           return likeDocument.get()
         } else {
             return  res.status(404).json({ error: 'Went wrong'})
         }
@@ -108,22 +108,22 @@ exports.likePost = (req,res) => {
         if(data.empty){
             return db.collection('likes').add({
                 postId: req.params.postId,
-                handler: res.user.handler
-            })
-                .then( () => {
-                postData.likeCount++
+                handler: req.user.handler
+            }).then( () => {
+                console.log(3333333);
+                postData.likeCount++;
                     return postDocmuent.update({likeCount: postData.likeCount})
             })
-                .then(() => res.json(postData))
+                .then(() => res.status(200).json(postData))
         } else {
             return  res.status(400).json({error: 'post already liked'})
         }
-    }).catch(err  => res.status(400).json({error: err.code}))
+    }).catch(err  => res.status(404).json({error: err.code}))
 };
 
 
 exports.unlikePost = (req,res) => {
-    const likeDocument = db.collection('likes').where('handler', '==', req.user.handler)
+    const likeDocument = db.collection('likes').where('user', '==', req.user.handler)
         .where('postId', '==', req.params.postId).limit(1);
 
     const postDocmuent = db.doc(`/posts/${req.params.postId}`);
