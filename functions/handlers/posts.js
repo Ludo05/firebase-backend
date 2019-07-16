@@ -20,7 +20,7 @@ exports.getAllPosts = (req, res) => {
 
 exports.createAPost = (req, res) => {
     const date = new Date();
-    const formatted = `${date.getDate()}:${date.getMonth() + 1}:${date.getFullYear()}`;
+    const formatted = date.toISOString();
     const Post = {
         user: req.user.handler,
         body: req.body.body,
