@@ -86,8 +86,9 @@ exports.uploadImage = (req,res) => {
 
         const imgExtension = filename.split('.')[filename.split('.').length - 1];
         imageFileName = `${Math.round(Math.random() * 1000000) + 4}.${imgExtension}`;
-        const filePath = path.join(os.tmpDir(), imageFileName);
+        const filePath = path.join(os.tmpdir(), imageFileName);
         imgToBeUploaded = {filePath, mimetype};
+        console.log(imgToBeUploaded.filePath};
         file.pipe(fs.createWriteStream(filePath));
 
     });
@@ -103,7 +104,8 @@ exports.uploadImage = (req,res) => {
             }).then(() => {
             console.log('WE UP IN THEEEE')
                 const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
-                return db.doc(`/users/${req.user.handler}`).update({imageUrl})
+            console.log(imageUrl);    
+                return db.doc(`/users/${req.user.handler}`).update({userImg :imageUrl})
             }).then(() => res.json({message: 'Image uploaded.'}))
                 .catch(err => res.status(500).json({error: err.code}))
         });
