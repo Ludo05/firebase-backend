@@ -21,7 +21,6 @@ module.exports = (req,res,next) => {
         req.user.userImg = data.docs[0].data().userImg;
         return next();
     }).catch( err => {
-        console.log(`djfjfjfjf ${err.message}`);
         return res.status(500).json({error: err.message})
     })
 };

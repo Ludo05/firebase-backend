@@ -97,7 +97,7 @@ exports.likePost = (req,res) => {
     let postData = {};
 
     postDocmuent.get().then(data => {
-        if(  data.exists){
+        if(data.exists){
            postData = data.data();
            postData.postId = data.id;
            return likeDocument.get()
@@ -169,7 +169,7 @@ exports.deletePost = (req, res) => {
                 return document.delete();
            }
        }).then( () => {
-           res.status(200).json({success: `document ${document.created} deleted`})
+           res.status(200).json({success: `document deleted!`})
    })
        .catch( err => res.status(400).json({error: err}))
 

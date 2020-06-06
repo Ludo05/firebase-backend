@@ -60,7 +60,7 @@ exports.login = (req,res) => {
         return data.user.getIdToken();
     }).then( token => {
         return res.json({token})
-    }).catch( err => res.status(400).json(err.code))
+    }).catch( err => res.status(402).json(err.code))
 
 };
 
@@ -144,7 +144,7 @@ exports.getAuthenticatedUser = (req,res) => {
                         postId: doc.data().postId,
                         type: doc.data().type,
                         created: doc.data().created,
-                         notfication : doc.id,
+                        notfication : doc.id,
                   })
               });
           return res.json(resData)
